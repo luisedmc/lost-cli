@@ -1,5 +1,8 @@
 from classes import Player, Game, Island
 from colorama import Fore, init
+import random
+import armory
+import bestiary
 
 
 def welcome_screen() -> None:
@@ -37,14 +40,6 @@ def run_game() -> None:
     # Create a new Game
     new_game = Game(player)
 
-    # Create a new Island
-    island = Island()
-    island.description = "You are on a small island."
-    island.sound = "You hear the sound of the ocean."
-    island.smell = "You smell the salty air."
-
-    new_game.island = island
-
     input(
         f"""
         Welcome to the game, {player.name}!
@@ -52,21 +47,48 @@ def run_game() -> None:
         Would you kindly press the ENTER key to start the game?
         """
         )
-    explore_labyrinth(new_game)
+    explore_island(new_game)
 
 
-def explore_labyrinth(new_game: Game) -> None:
+def explore_island(current_game: Game) -> None:
     while True:
-        new_game.island.print_description()
+        island = generate_island()
+        current_game.island = island
+            
 
-        player_input = input(Fore.LIGHTCYAN_EX + "-> ").lower().strip()
+        current_game.island.print_description()
+
+        for i in current_game.island.items:
+                print(
+        f"""
+        {Fore.LIGHTYELLOW_EX}You see a {i['name']} on the ground.
+        """
+        )
+
+        if current_game.island.monster:
+                print(
+        f"""
+        {Fore.LIGHTRED_EX}You see a {current_game.island.monster['name']} nearby.
+        """
+        )
+
+        input_player = input(Fore.LIGHTCYAN_EX + "-> ").lower().strip()
 
         # Get the option selected from the User
-        if player_input == "exit":
+        if input_player == "exit":
             play_again()
 
-        elif player_input == "help":
+        elif input_player == "help":
             show_help()
+
+        elif input_player in ["w", "s", "d", "a"]:
+            print(Fore.LIGHTMAGENTA_EX +
+        """
+        You go deeper into the island...
+        """
+        )
+            continue
+
 
         else:
             print(Fore.YELLOW +
@@ -76,7 +98,24 @@ def explore_labyrinth(new_game: Game) -> None:
         """
         )
 
+# Generate a new Island
+def generate_island() -> Island:
+    items = []
+    monsters = {}
 
+    # 25% chance to have an item
+    if random.randint(1, 100) < 25:
+        item = random.choice(list(armory.items.values()))
+        items.append(item)
+
+    # 25% chance to have a monster
+    if random.randint(1, 100) < 25:
+        monsters = random.choice(bestiary.monsters)
+
+    return Island(items, monsters)
+
+
+# Show the help message
 def show_help() -> None:
     print(Fore.YELLOW +
         """
@@ -102,6 +141,7 @@ def show_help() -> None:
         )
 
 
+# Ask the user if he wants to play again
 def play_again() -> None:
     answer = input(Fore.YELLOW +
         """
