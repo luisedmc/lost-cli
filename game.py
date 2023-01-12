@@ -1,4 +1,5 @@
-from colorama import Fore
+from classes import Player, Game, Island
+from colorama import Fore, init
 
 
 def welcome_screen() -> None:
@@ -7,36 +8,61 @@ def welcome_screen() -> None:
     """
     print(Fore.RED +
         "                                   D U N G E O N"
-    )
+        )
 
     print(Fore.GREEN +
         """
         Game Description
         """
-    )
+        )
 
 
 def run_game() -> None:
+    # Initialize colorama
+    init()
+
     welcome_screen()
 
-    input(
+    # Create a new Player
+    player = Player()
+
+    player.name = input(
         """
+        Hello Adventurer!
         I can see you made a good decision!
-        Hit the ENTER key to start the game.
+        Would you kindly tell me your name?
+-> """
+        ).strip()
+
+    # Create a new Game
+    new_game = Game(player)
+
+    # Create a new Island
+    island = Island()
+    island.description = "You are on a small island."
+    island.sound = "You hear the sound of the ocean."
+    island.smell = "You smell the salty air."
+
+    new_game.island = island
+
+    input(
+        f"""
+        Welcome to the game, {player.name}!
+        We're all set to begin.
+        Would you kindly press the ENTER key to start the game?
         """
-    )
-    explore_labyrinth()
+        )
+    explore_labyrinth(new_game)
 
 
-def explore_labyrinth() -> None:
+def explore_labyrinth(new_game: Game) -> None:
     while True:
+        new_game.island.print_description()
+
         player_input = input(Fore.LIGHTCYAN_EX + "-> ").lower().strip()
 
         # Get the option selected from the User
         if player_input == "exit":
-            # TODO: Add a confirmation message
-            confirmation_exit("exit")
-
             play_again()
 
         elif player_input == "help":
@@ -73,7 +99,7 @@ def show_help() -> None:
         - 'help' to show this message
         
         """
-    )
+        )
 
 
 def play_again() -> None:
@@ -83,7 +109,7 @@ def play_again() -> None:
         You want to play again?
         Just answer with a simple 'yes' or 'no' and I will know what to do...
 -> """
-    ).lower().strip()
+        ).lower().strip()
 
     while answer not in ["yes", "no"]:
         answer = input(Fore.YELLOW +
@@ -104,13 +130,3 @@ def play_again() -> None:
         """
         )
         exit(0)
-
-
-def confirmation_exit(answer: str):
-    answer = input(Fore.YELLOW +
-        f"""
-        Are you sure you want to {answer}?
-        You can answer if a simple 'yes' or 'no'.
-        It's ok, you can go back to the game if you type 'no'. 
--> """
-    ).lower().strip()
