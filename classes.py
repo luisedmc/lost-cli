@@ -1,19 +1,3 @@
-class Game:
-    def __init__(self, player: Player) -> None:
-        self.player = player
-        self.Island = None
-        self.number_creatures: int = 0
-        self.islands: dict = {}
-        self.position_x: int = 0
-        self.position_y: int = 0
-
-    def set_islands(self, islands: dict) -> None:
-        self.islands = islands
-
-    def set_current_island(self, island: Island) -> None:
-        self.island = island
-
-
 class Player:
     """
     Player class holds all player data
@@ -38,6 +22,34 @@ class Island:
         self.smell: str
 
     def print_description(self) -> None:
-        print(self.description)
-        print(self.sound)
-        print(self.smell)
+        print(
+        f"""
+        {self.description}"""
+        )
+        print(
+        f"""
+        {self.sound}"""
+        )
+        print(
+        f"""
+        {self.smell}"""
+        )
+
+
+class Game:
+    """
+    Game class holds all game data
+    """
+    def __init__(self, player: Player) -> None:
+        self.player = player
+        self.island = None
+        self.number_creatures: int = 0
+        self.islands: dict = {}
+        self.position_x: int = 0
+        self.position_y: int = 0
+
+    def set_islands(self, islands: dict) -> None:
+        self.islands = islands
+
+    def set_current_island(self, island: Island) -> None:
+        self.island = island
