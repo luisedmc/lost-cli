@@ -29,18 +29,19 @@ def run_game() -> None:
     # Create a new Player
     player = Player()
 
-    player.name = input(
+    player.name = input(Fore.GREEN +
         """
         Hello Adventurer!
         I can see you made a good decision!
         Would you kindly tell me your name?
+        """ + Fore.LIGHTCYAN_EX + """
 -> """
         ).strip()
 
     # Create a new Game
     new_game = Game(player)
 
-    input(
+    input(Fore.GREEN +
         f"""
         Welcome to the game, {player.name}!
         We're all set to begin.
@@ -81,6 +82,17 @@ def explore_island(current_game: Game) -> None:
         elif input_player == "help":
             show_help()
 
+        elif input_player.startswith("take"):
+            if not current_game.island.items:
+                print(Fore.YELLOW +
+        """
+        There's nothing to take here...
+        """
+        )
+                continue
+            else:
+                take_item(current_game, input_player)
+
         elif input_player in ["w", "s", "d", "a"]:
             print(Fore.LIGHTMAGENTA_EX +
         """
@@ -114,6 +126,53 @@ def generate_island() -> Island:
 
     return Island(items, monsters)
 
+
+def take_item(current_game, input_player) -> None:
+    # Checking if the the user is using the command 'take'
+    if len(current_game.island.items) > 0 and input_player[5:] == "":
+        input_player = input_player + " " + current_game.island.items[0]["name"]
+
+    # Checking if the item is not in the inventory
+    if input_player[5:] not in current_game.player.inventory:
+        idx = find_item(input_player[5:], "name", current_game.island.items)
+
+        # Adding the item to the inventory
+        if idx > -1:
+            current_item = current_game.island.items[idx]
+            current_game.player.inventory.append(current_item["name"])
+            current_game.island.items.remove(current_item)
+            print(Fore.YELLOW +
+        f"""
+        You took '{input_player[5:]}' from the ground.
+        """
+        )
+        else:
+            print(Fore.YELLOW +
+        f"""
+        I can't find '{input_player[5:]}' in the ground.
+        Maybe you should check your spelling?
+        Or the item is not in the ground...
+        """
+        )
+            
+
+    else:
+        print(Fore.YELLOW +
+        f"""
+        You already have '{input_player[5:]}' in your inventory.
+        I don't think you need another one...
+        """
+        )
+
+
+def find_item(search: str, key: str, list_search: list) -> int:
+    idx = -1
+    cnt = 0
+    for item in list_search:
+        if item[key] == search:
+            idx = cnt
+        cnt += 1
+    return idx
 
 # Show the help message
 def show_help() -> None:
