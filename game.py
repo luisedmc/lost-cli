@@ -81,6 +81,7 @@ def explore_island(current_game: Game) -> None:
 
         elif input_player == "help":
             show_help()
+            continue
 
         elif input_player.startswith("take"):
             if not current_game.island.items:
@@ -92,6 +93,10 @@ def explore_island(current_game: Game) -> None:
                 continue
             else:
                 take_item(current_game, input_player)
+
+        elif input_player == "inventory" or input_player == "inv":
+            show_inventory(current_game)
+            continue
 
         elif input_player in ["w", "s", "d", "a"]:
             print(Fore.LIGHTMAGENTA_EX +
@@ -127,7 +132,33 @@ def generate_island() -> Island:
     return Island(items, monsters)
 
 
-def take_item(current_game, input_player) -> None:
+# Show the inventory
+def show_inventory(current_game: Game) -> None:
+    # Checking if the inventory is empty
+    if len(current_game.player.inventory) == 0:
+        print(Fore.YELLOW +
+        """
+        Your Inventory:
+
+        Well, looks like your inventory is empty...
+        """
+        )
+        return
+
+    print(Fore.YELLOW +
+        """
+        Your Inventory: """
+        )
+
+    for i in current_game.player.inventory:
+        print(Fore.YELLOW +
+            f"""
+            - {i}""", end=""
+        )
+        print()
+
+
+def take_item(current_game: Game, input_player: str) -> None:
     # Checking if the the user is using the command 'take'
     if len(current_game.island.items) > 0 and input_player[5:] == "":
         input_player = input_player + " " + current_game.island.items[0]["name"]
