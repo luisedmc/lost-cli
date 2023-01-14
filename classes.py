@@ -1,7 +1,11 @@
+from colorama import Fore
+import descriptions
+import random
+import os
+
+
+# Player holds all player data.
 class Player:
-    """
-    Player class holds all player data
-    """
     def __init__(self) -> None:
         self.name: str = ""
         self.hp: int = 100
@@ -10,18 +14,25 @@ class Player:
         self.xp: int = 0
         self.level: int = 1
         self.turns: int = 0
+        self.inventory: list = []
 
 
+# Island holds all island data.
 class Island:
-    """
-    Island class holds all island data
-    """
-    def __init__(self) -> None:
-        self.description: str
-        self.sound: str
-        self.smell: str
+    def __init__(self, items: list, monster: dict) -> None:
+        self.description: str = descriptions.descriptions[random.randint(0, len(descriptions.descriptions)-1)]
+
+        self.sound: str = descriptions.sounds[random.randint(0, len(descriptions.sounds)-1)]
+
+        self.smell: str = descriptions.smells[random.randint(0, len(descriptions.smells)-1)]
+
+        self.items: list = items
+
+        self.monster: dict = monster
 
     def print_description(self) -> None:
+        terminal_size = os.get_terminal_size()
+        print(Fore.LIGHTCYAN_EX + "-" * terminal_size.columns)
         print(
         f"""
         {self.description}"""
@@ -36,10 +47,8 @@ class Island:
         )
 
 
+# Game holds all game data.
 class Game:
-    """
-    Game class holds all game data
-    """
     def __init__(self, player: Player) -> None:
         self.player = player
         self.island = None
