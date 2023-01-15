@@ -1,17 +1,20 @@
-from classes import Player, Game, Island
+from pyfiglet import Figlet
 from colorama import Fore, init
+from classes import Player, Game, Island
 import random
 import armory
 import bestiary
 
-
+f = Figlet(font='slant')
+print (f.renderText('L O S T'))
 def welcome_screen() -> None:
     """
     welcome_screen simply shows the welcome screen of the game to the user.
     """
-    print(Fore.RED +
-        "                                   D U N G E O N"
-        )
+    print(Fore.RED + f.renderText(
+        """   L O S T """))
+        # "                      L O S T"
+        # )
 
     print(Fore.GREEN +
         """
@@ -105,6 +108,10 @@ def explore_island(current_game: Game) -> None:
             equip_item(current_game.player, input_player[6:])
             continue
 
+        elif input_player.startswith("unequip"):
+            unequip_item(current_game.player, input_player[8:])
+            continue
+
         elif input_player == "inventory" or input_player == "inv":
             show_inventory(current_game)
             continue
@@ -170,24 +177,24 @@ def show_inventory(current_game: Game) -> None:
         if i == current_game.player.current_weapon["name"]:
             print(Fore.LIGHTGREEN_EX +
             f"""
-            - {i} (Equipped)"""
+            - {i} (Equipped)\n"""
             )
         elif i == current_game.player.current_armor["name"]:
             print(Fore.LIGHTGREEN_EX +
             f"""
-            - {i} (Equipped)"""
+            - {i} (Equipped)\n"""
             )
         elif i == current_game.player.current_shield["name"]:
             print(Fore.LIGHTGREEN_EX +
             f"""
-            - {i} (Equipped)"""
+            - {i} (Equipped)\n"""
             )
         else:
             print(Fore.YELLOW +
             f"""
-            - {i}""", end=""
+            - {i}
+            """
             )
-        # print()
 
 
 def take_item(current_game: Game, input_player: str) -> None:
@@ -228,19 +235,42 @@ def take_item(current_game: Game, input_player: str) -> None:
 
 
 def drop_item(current_game: Game, input_player: str) -> None:
-    try:
-        current_game.player.inventory.remove(input_player[5:])
+    if input_player[5:] == current_game.player.current_weapon["name"]:
         print(Fore.YELLOW +
+        f"""
+        You can't drop your equipped weapon.
+        You need it to kill things...
+        """
+        )
+    elif input_player[5:] == current_game.player.current_armor["name"]:
+        print(Fore.YELLOW +
+        f"""
+        You can't drop your equipped armor.
+        You need protection against these monsters out there...
+        """
+        )
+    elif input_player[5:] == current_game.player.current_shield["name"]:
+        print(Fore.YELLOW +
+        f"""
+        You can't drop your equipped shield.
+        You need it to defend yourself...
+        """
+        )
+
+    else:
+        try:
+            current_game.player.inventory.remove(input_player[5:])
+            print(Fore.YELLOW +
         f"""
         You dropped {input_player[5:]} from your inventory.
         Hope you don't need it...
         """
         )
 
-        # If the player decides to drop the item, it will be added to the ground
-        current_game.island.items.append(armory.items[input_player[5:]])
-    except Exception:
-        print(Fore.YELLOW +
+            # If the player decides to drop the item, it will be added to the ground
+            current_game.island.items.append(armory.items[input_player[5:]])
+        except Exception:
+            print(Fore.YELLOW +
         f"""
         I can't find '{input_player[5:]}' in your inventory.
         Maybe you should check your spelling?
@@ -322,6 +352,52 @@ def equip_item(player: Player, item: str):
         """
         )
 
+
+def unequip_item(player: Player, item: str) -> None:
+    if item in player.inventory:
+        if player.current_weapon["name"] == item:
+            player.current_weapon = armory.default["hands"]
+            print(Fore.YELLOW +
+        f"""
+        You unequipped {item}.
+        Now you are using your hands again.
+        """
+        )
+
+        elif player.current_armor["name"] == item:
+            player.current_armor = armory.default["clothes"]
+            print(Fore.YELLOW +
+        f"""
+        You unequipped {item}.
+        Back using your clothes again.
+        """
+        )
+
+        elif player.current_shield["name"] == item:
+            player.current_shield = armory.default["noshield"]
+            print(Fore.YELLOW +
+        f"""
+        You unequipped {item}.
+        Back using no shield at all again.
+        """
+        )
+
+        else:
+            print(Fore.YELLOW +
+        f"""
+        I don't think you can unequip {item}.
+        Probably it's not equipped at the moment...
+        """
+        )
+
+    else:
+        print(Fore.YELLOW +
+        f"""
+        I can't find '{item}' in your inventory.
+        Maybe you should check your spelling?
+        Or the item is not in your inventory...
+        """
+        )
 
 
 # Find an item in a list
