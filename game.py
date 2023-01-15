@@ -101,6 +101,10 @@ def explore_island(current_game: Game) -> None:
             drop_item(current_game, input_player)
             continue
 
+        elif input_player.startswith("equip"):
+            equip_item(current_game.player, input_player[6:])
+            continue
+
         elif input_player == "inventory" or input_player == "inv":
             show_inventory(current_game)
             continue
@@ -183,13 +187,13 @@ def take_item(current_game: Game, input_player: str) -> None:
             current_game.island.items.remove(current_item)
             print(Fore.YELLOW +
         f"""
-        You took '{input_player[5:]}' from the ground.
+        You took {input_player[5:]} from the ground.
         """
         )
         else:
             print(Fore.YELLOW +
         f"""
-        I can't find '{input_player[5:]}' in the ground.
+        I can't find {input_player[5:]} in the ground.
         Maybe you should check your spelling?
         Or the item is not in the ground...
         """
@@ -199,7 +203,7 @@ def take_item(current_game: Game, input_player: str) -> None:
     else:
         print(Fore.YELLOW +
         f"""
-        You already have '{input_player[5:]}' in your inventory.
+        You already have {input_player[5:]} in your inventory.
         I don't think you need another one...
         """
         )
@@ -210,7 +214,7 @@ def drop_item(current_game: Game, input_player: str) -> None:
         current_game.player.inventory.remove(input_player[5:])
         print(Fore.YELLOW +
         f"""
-        You dropped '{input_player[5:]}' from your inventory.
+        You dropped {input_player[5:]} from your inventory.
         Hope you don't need it...
         """
         )
@@ -225,6 +229,79 @@ def drop_item(current_game: Game, input_player: str) -> None:
         Or the item is not in your inventory...
         """
         )
+
+
+def equip_item(player: Player, item: str):
+    if item in player.inventory:
+        old_weapon = player.current_weapon
+
+        # Equipping weapons
+        if armory.items[item]["type"] == "weapon":
+            player.current_weapon = armory.items[item]
+            print(Fore.YELLOW +
+        f"""
+        You equipped {item} instead of {old_weapon["name"]}.
+        Make a good use of it!
+        """
+        )
+
+            # Can't use bows and shields at the same time
+            if item == "crossbow" and player.current_shield["name"] != "noshield":
+                player.current_shield = armory.default["noshield"]
+                print(Fore.YELLOW +
+        f"""
+        You can't use a shield and a bow at the same time.
+        I mean, you need both hands to shoot a bow...
+        But don't worry, the shield is still in your inventory.
+        """
+        )
+
+        # Equipping armor
+        elif armory.items[item]["type"] == "armor":
+            player.current_shield = armory.items[item]
+            print(Fore.YELLOW +
+        f"""
+        You equipped {item} instead of {player.current_armor["name"]}.
+        Hope you are more protected now!
+        """
+        )
+
+        # Equipping shield
+        elif armory.items[item]["type"] == "shield":
+            if player.current_weapon["name"] == "crossbow":
+                print(Fore.YELLOW +
+        f"""
+        You can't use a shield and a bow at the same time.
+        I mean, you need both hands to shoot a bow...
+        """
+        )
+            else:
+                player.current_shield = armory.items[item]
+                print(Fore.YELLOW +
+        f"""
+        You equipped {item} instead of {player.current_shield["name"]}.
+        Hope you are more protected now!
+        """
+        )
+
+        else:
+            print(Fore.YELLOW +
+        f"""
+        I don't think you can equip {item}.
+        Probably it's not a weapon, armor or shield...
+        """
+        )
+
+        
+    else:
+        print(Fore.YELLOW +
+        f"""
+        I can't find '{item}' in your inventory.
+        Maybe you should check your spelling?
+        Or the item is not in your inventory...
+        """
+        )
+
 
 
 # Find an item in a list
