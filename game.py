@@ -124,6 +124,7 @@ def explore_island(current_game: Game) -> None:
         Maybe you could type 'help' and see what happens?
         """
         )
+            continue
 
         # Generate another Island
         current_game.island = generate_island()
@@ -151,10 +152,11 @@ def show_inventory(current_game: Game) -> None:
     # Checking if the inventory is empty
     if len(current_game.player.inventory) == 0:
         print(Fore.YELLOW +
-        """
+        f"""
         Your Inventory:
 
         Well, looks like your inventory is empty...
+        And you have the total amount of {current_game.player.gold} gold.
         """
         )
         return
@@ -165,11 +167,27 @@ def show_inventory(current_game: Game) -> None:
         )
 
     for i in current_game.player.inventory:
-        print(Fore.YELLOW +
+        if i == current_game.player.current_weapon["name"]:
+            print(Fore.LIGHTGREEN_EX +
+            f"""
+            - {i} (Equipped)"""
+            )
+        elif i == current_game.player.current_armor["name"]:
+            print(Fore.LIGHTGREEN_EX +
+            f"""
+            - {i} (Equipped)"""
+            )
+        elif i == current_game.player.current_shield["name"]:
+            print(Fore.LIGHTGREEN_EX +
+            f"""
+            - {i} (Equipped)"""
+            )
+        else:
+            print(Fore.YELLOW +
             f"""
             - {i}""", end=""
-        )
-        print()
+            )
+        # print()
 
 
 def take_item(current_game: Game, input_player: str) -> None:
@@ -234,6 +252,8 @@ def drop_item(current_game: Game, input_player: str) -> None:
 def equip_item(player: Player, item: str):
     if item in player.inventory:
         old_weapon = player.current_weapon
+        old_armor = player.current_armor
+        old_shield = player.current_shield
 
         # Equipping weapons
         if armory.items[item]["type"] == "weapon":
@@ -258,13 +278,13 @@ def equip_item(player: Player, item: str):
 
         # Equipping armor
         elif armory.items[item]["type"] == "armor":
-            player.current_shield = armory.items[item]
             print(Fore.YELLOW +
         f"""
-        You equipped {item} instead of {player.current_armor["name"]}.
+        You equipped {item} instead of {old_armor["name"]}.
         Hope you are more protected now!
         """
         )
+            player.current_armor = armory.items[item]
 
         # Equipping shield
         elif armory.items[item]["type"] == "shield":
@@ -279,7 +299,7 @@ def equip_item(player: Player, item: str):
                 player.current_shield = armory.items[item]
                 print(Fore.YELLOW +
         f"""
-        You equipped {item} instead of {player.current_shield["name"]}.
+        You equipped {item} instead of {old_shield["name"]}.
         Hope you are more protected now!
         """
         )
@@ -324,7 +344,7 @@ def show_help() -> None:
         - w/s/d/a to move Up/Down/Right/Left
         - map to show the map
         - look to look around your current position
-        - inventory to show your inventory
+        - inventory to show your inventory and your current equipment
         - equip <item> to equip an item from your inventory
         - unequip <item> to unequip an item from your inventory
         - examine <item> to examine an item from your inventory
@@ -343,10 +363,10 @@ def show_help() -> None:
 # Ask the user if he wants to play again
 def play_again() -> None:
     answer = input(Fore.YELLOW +
-        """
+        f"""
         So...
         You want to play again?
-        Just answer with a simple 'yes' or 'no' and I will know what to do...
+        Just answer with a simple 'yes' or 'no' and I will know what to do... {Fore.LIGHTCYAN_EX}
 -> """
         ).lower().strip()
 
