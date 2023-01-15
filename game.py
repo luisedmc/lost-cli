@@ -112,6 +112,10 @@ def explore_island(current_game: Game) -> None:
             unequip_item(current_game.player, input_player[8:])
             continue
 
+        elif input_player == "status":
+            show_status(current_game)
+            continue
+
         elif input_player == "inventory" or input_player == "inv":
             show_inventory(current_game)
             continue
@@ -136,6 +140,7 @@ def explore_island(current_game: Game) -> None:
         # Generate another Island
         current_game.island = generate_island()
         current_game.island.print_description()
+        current_game.player.turns += 1
 
 # Generate a new Island
 def generate_island() -> Island:
@@ -400,6 +405,24 @@ def unequip_item(player: Player, item: str) -> None:
         )
 
 
+def show_status(current_game: Game) -> None:
+    print(Fore.LIGHTYELLOW_EX + 
+        f"""
+        You have played the game for {current_game.player.turns} turns,
+        defeated {current_game.player.creatures_killed} monsters,
+        and found {current_game.player.gold} gold.
+
+        Player {current_game.player.name}
+        - XP:     {current_game.player.xp}
+        - Level:  {current_game.player.level}
+        - Health: {current_game.player.hp}
+        - Weapon: {current_game.player.current_weapon["name"]}
+        - Armor:  {current_game.player.current_armor["name"]}
+        - Shield: {current_game.player.current_shield["name"]}
+        """
+        )
+
+
 # Find an item in a list
 def find_item(search: str, key: str, list_search: list) -> int:
     idx = -1
@@ -423,6 +446,7 @@ def show_help() -> None:
         - inventory to show your inventory and your current equipment
         - equip <item> to equip an item from your inventory
         - unequip <item> to unequip an item from your inventory
+        - status to show your current status
         - examine <item> to examine an item from your inventory
         - use <item> to use an item from your inventory
         - take <item> to take an item from the ground
