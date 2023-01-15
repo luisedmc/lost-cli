@@ -38,8 +38,10 @@ def run_game() -> None:
 -> """
         ).strip()
 
-    # Create a new Game
+    # Create a new Game with the Player Name
     new_game = Game(player)
+
+    new_game.island = generate_island()
 
     input(Fore.GREEN +
         f"""
@@ -48,17 +50,13 @@ def run_game() -> None:
         Would you kindly press the ENTER key to start the game?
         """
         )
+
+    new_game.island.print_description()
     explore_island(new_game)
 
 
 def explore_island(current_game: Game) -> None:
     while True:
-        island = generate_island()
-        current_game.island = island
-            
-
-        current_game.island.print_description()
-
         for i in current_game.island.items:
                 print(
         f"""
@@ -83,6 +81,10 @@ def explore_island(current_game: Game) -> None:
             show_help()
             continue
 
+        elif input_player == "look":
+            current_game.island.print_description()
+            continue
+
         elif input_player.startswith("take"):
             if not current_game.island.items:
                 print(Fore.YELLOW +
@@ -93,6 +95,11 @@ def explore_island(current_game: Game) -> None:
                 continue
             else:
                 take_item(current_game, input_player)
+                continue
+
+        elif input_player.startswith("drop"):
+            drop_item(current_game, input_player)
+            continue
 
         elif input_player == "inventory" or input_player == "inv":
             show_inventory(current_game)
@@ -104,7 +111,6 @@ def explore_island(current_game: Game) -> None:
         You go deeper into the island...
         """
         )
-            continue
 
 
         else:
@@ -114,6 +120,10 @@ def explore_island(current_game: Game) -> None:
         Maybe you could type 'help' and see what happens?
         """
         )
+
+        # Generate another Island
+        current_game.island = generate_island()
+        current_game.island.print_description()
 
 # Generate a new Island
 def generate_island() -> Island:
@@ -159,7 +169,6 @@ def show_inventory(current_game: Game) -> None:
 
 
 def take_item(current_game: Game, input_player: str) -> None:
-    # Checking if the the user is using the command 'take'
     if len(current_game.island.items) > 0 and input_player[5:] == "":
         input_player = input_player + " " + current_game.island.items[0]["name"]
 
@@ -196,6 +205,29 @@ def take_item(current_game: Game, input_player: str) -> None:
         )
 
 
+def drop_item(current_game: Game, input_player: str) -> None:
+    try:
+        current_game.player.inventory.remove(input_player[5:])
+        print(Fore.YELLOW +
+        f"""
+        You dropped '{input_player[5:]}' from your inventory.
+        Hope you don't need it...
+        """
+        )
+
+        # If the player decides to drop the item, it will be added to the ground
+        current_game.island.items.append(armory.items[input_player[5:]])
+    except Exception:
+        print(Fore.YELLOW +
+        f"""
+        I can't find '{input_player[5:]}' in your inventory.
+        Maybe you should check your spelling?
+        Or the item is not in your inventory...
+        """
+        )
+
+
+# Find an item in a list
 def find_item(search: str, key: str, list_search: list) -> int:
     idx = -1
     cnt = 0
@@ -256,7 +288,7 @@ def play_again() -> None:
         print(Fore.RED +
         """
         So you choose to leave...
-        Another soul lost in the labyrinth.
+        Another soul lost in the island.
         """
         )
         exit(0)
