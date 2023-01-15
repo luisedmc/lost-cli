@@ -103,20 +103,20 @@ items = {
 
 # Default contains all the items that are given to the player at the start of the game.
 default = {
-    "Hands": {
-        "name": "Hands",
+    "hands": {
+        "name": "hands",
         "min_damage": 1,
         "max_damage": 5,
         "to_hit": 0,
         "type": "weapon",
     },
-    "Clothes": {
-        "name": "Clothes",
+    "clothes": {
+        "name": "clothes",
         "defense": 0,
         "type": "armor",
     },
-    "No Shield": {
-        "name": "No Shield",
+    "noshield": {
+        "name": "noshield",
         "defense": 0,
         "type": "shield",
     },

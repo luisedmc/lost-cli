@@ -1,4 +1,5 @@
 from colorama import Fore
+import armory
 import descriptions
 import random
 import os
@@ -15,7 +16,9 @@ class Player:
         self.level: int = 1
         self.turns: int = 0
         self.inventory: list = []
-
+        self.current_weapon: dict = armory.default["hands"]
+        self.current_armor: dict = armory.default["clothes"]
+        self.current_shield: dict = armory.default["noshield"]
 
 # Island holds all island data.
 class Island:
