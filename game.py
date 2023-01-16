@@ -1,12 +1,18 @@
 from pyfiglet import Figlet
+from blessings import Terminal
 from colorama import Fore, init
 from classes import Player, Game, Island
+import utils
 import random
 import armory
 import bestiary
+import combat
+
 
 f = Figlet(font='slant')
 print (f.renderText('L O S T'))
+
+
 def welcome_screen() -> None:
     """
     welcome_screen simply shows the welcome screen of the game to the user.
@@ -72,10 +78,11 @@ def explore_island(current_game: Game) -> None:
         f"""
         {Fore.LIGHTRED_EX}You see a {current_game.island.monster["name"]} nearby. """
         )
-            fight_or_run = get_input(
+            fight_or_run = utils.get_input(
         f"""
         Do you want to fight or run?
-        Choose wisely... {Fore.LIGHTCYAN_EX}
+        Choose wisely...
+        {Fore.LIGHTCYAN_EX}
 -> """, ["fight", "run"])
 
             while True:
@@ -84,11 +91,20 @@ def explore_island(current_game: Game) -> None:
         """
         You run away from the monster...
         """
-                        )
+        )
                     break
-        else:
-            # Player fights the monster
-            ...
+                else:
+                    # Player fights the monster
+                    winner = combat.fight(current_game)
+
+                    if winner == "player":
+                        break
+                    elif winner == "monster":
+                        break
+                    else:
+                        break
+
+                 
 
         input_player = input(Fore.LIGHTCYAN_EX + "-> ").lower().strip()
 
@@ -142,7 +158,6 @@ def explore_island(current_game: Game) -> None:
         You go deeper into the island...
         """
         )
-
 
         else:
             print(Fore.YELLOW +
@@ -224,7 +239,7 @@ def take_item(current_game: Game, input_player: str) -> None:
 
     # Checking if the item is not in the inventory
     if input_player[5:] not in current_game.player.inventory:
-        idx = find_item(input_player[5:], "name", current_game.island.items)
+        idx = utils.find_item(input_player[5:], "name", current_game.island.items)
 
         # Adding the item to the inventory
         if idx > -1:
@@ -439,31 +454,6 @@ def show_status(current_game: Game) -> None:
         )
 
 
-def get_input(question: str, answers: list) -> str:
-    while True:
-        resp = input(f"{Fore.LIGHTRED_EX}{question}").lower().strip()
-        if resp not in answers:
-            print(Fore.YELLOW +
-        f"""
-        I don't understand '{resp}'.
-        Maybe you should check your spelling?
-        Or you are trying to do something you can't do...
-        """
-        )
-        else:
-            return resp
-
-
-# Find an item in a list
-def find_item(search: str, key: str, list_search: list) -> int:
-    idx = -1
-    cnt = 0
-    for item in list_search:
-        if item[key] == search:
-            idx = cnt
-        cnt += 1
-    return idx
-
 # Show the help message
 def show_help() -> None:
     print(Fore.YELLOW +
@@ -493,23 +483,17 @@ def show_help() -> None:
 
 # Ask the user if he wants to play again
 def play_again() -> None:
-    answer = input(Fore.YELLOW +
+    answer = utils.get_input(Fore.YELLOW +
         f"""
         So...
         You want to play again?
         Just answer with a simple 'yes' or 'no' and I will know what to do... {Fore.LIGHTCYAN_EX}
--> """
-        ).lower().strip()
+-> """, ["yes", "no"])
 
-    while answer not in ["yes", "no"]:
-        answer = input(Fore.YELLOW +
-        """
-        I don't think I understand what you mean...
-        Maybe you could type 'yes' or 'no'?
--> """
-        )
 
     if answer == "yes":
+        term = Terminal()
+        print(term.clear())
         run_game()
         
     elif answer == "no":
