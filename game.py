@@ -68,11 +68,27 @@ def explore_island(current_game: Game) -> None:
         )
 
         if current_game.island.monster:
-                print(
+            print(
         f"""
-        {Fore.LIGHTRED_EX}You see a {current_game.island.monster['name']} nearby.
-        """
+        {Fore.LIGHTRED_EX}You see a {current_game.island.monster["name"]} nearby. """
         )
+            fight_or_run = get_input(
+        f"""
+        Do you want to fight or run?
+        Choose wisely... {Fore.LIGHTCYAN_EX}
+-> """, ["fight", "run"])
+
+            while True:
+                if fight_or_run == "run":
+                    print(Fore.LIGHTMAGENTA_EX +
+        """
+        You run away from the monster...
+        """
+                        )
+                    break
+        else:
+            # Player fights the monster
+            ...
 
         input_player = input(Fore.LIGHTCYAN_EX + "-> ").lower().strip()
 
@@ -421,6 +437,21 @@ def show_status(current_game: Game) -> None:
         - Shield: {current_game.player.current_shield["name"]}
         """
         )
+
+
+def get_input(question: str, answers: list) -> str:
+    while True:
+        resp = input(f"{Fore.LIGHTRED_EX}{question}").lower().strip()
+        if resp not in answers:
+            print(Fore.YELLOW +
+        f"""
+        I don't understand '{resp}'.
+        Maybe you should check your spelling?
+        Or you are trying to do something you can't do...
+        """
+        )
+        else:
+            return resp
 
 
 # Find an item in a list
