@@ -47,17 +47,16 @@ def fight(current_game: Game) -> str:
     while True:
         if player_turn:
             player_roll = random.randint(1, 100)
+            modified_player_roll = player_roll + player.current_weapon["to_hit"] - island.monster["armor_modifier"]
 
             # 50% chance to hit
-            if player_roll > 50:
+            if modified_player_roll > 50:
                 damage = random.randint(player.current_weapon["min_damage"], player.current_weapon["max_damage"])
                 monster_hp -= damage
                 print(
         f""" {Fore.LIGHTYELLOW_EX}
         You hit the {island.monster["name"]} with your {player.current_weapon["name"]} and dealt {Fore.BLUE} {damage} damage! {Fore.LIGHTYELLOW_EX}
         Nice hit!
-
-        {Fore.LIGHTYELLOW_EX}{island.monster["name"]} HP: {monster_hp}/{monster_original_hp}
         """
                 )
 
@@ -72,8 +71,9 @@ def fight(current_game: Game) -> str:
             if monster_hp <= 0:
                 print(Fore.LIGHTGREEN_EX +
         f"""
-        {island.monster["name"]} dropped {island.monster["gold"]} gold!
+        You killed the {island.monster["name"]} and he dropped {island.monster["gold"]} gold!
         You better catch it! (Relax, it's already in your inventory)
+        Good job!
 
         You received {island.monster["xp"]} XP!
         """)
@@ -85,8 +85,9 @@ def fight(current_game: Game) -> str:
         # Monster's turn
         else:
             monster_roll = random.randint(1, 100)
+            modified_monster_roll = monster_roll - player.current_shield["defense"] + player.current_armor["defense"]
 
-            if monster_roll > 50:
+            if modified_monster_roll > 50:
                 damage = random.randint(island.monster["min_damage"], island.monster["max_damage"])
                 player.hp -= damage
                 print(Fore.RED +

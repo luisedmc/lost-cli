@@ -11,7 +11,7 @@ class Player:
         self.name: str = ""
         self.hp: int = 100
         self.gold: int = 0
-        self.creatures_killed: int = 0
+        self.monsters_killed: int = 0
         self.xp: int = 0
         self.level: int = 1
         self.turns: int = 0
@@ -38,15 +38,14 @@ class Island:
         print(Fore.LIGHTCYAN_EX + "-" * terminal_size.columns)
         print(
         f"""
-        {self.description}"""
-        )
+        {self.description} """)
         print(
         f"""
-        {self.sound}"""
-        )
+        {self.sound} """)
         print(
         f"""
-        {self.smell}"""
+        {self.smell}
+        """
         )
 
 

@@ -2,6 +2,7 @@ from pyfiglet import Figlet
 from blessings import Terminal
 from colorama import Fore, init
 from classes import Player, Game, Island
+import config as cfg
 import utils
 import random
 import armory
@@ -19,9 +20,8 @@ def welcome_screen() -> None:
     """
     print(Fore.RED + f.renderText(
         """   L O S T """))
-        # "                      L O S T"
-        # )
-
+    print(Fore.RED + 
+        """      --------------------------------------""")
     print(Fore.GREEN +
         """
         Game Description
@@ -156,6 +156,10 @@ def explore_island(current_game: Game) -> None:
             show_status(current_game)
             continue
 
+        elif input_player == "medidate" or input_player == "md":
+            meditate(current_game)
+            continue
+
         elif input_player == "inventory" or input_player == "inv":
             show_inventory(current_game)
             continue
@@ -205,13 +209,13 @@ def show_inventory(current_game: Game) -> None:
         print(Fore.YELLOW +
         f"""
         Player: {current_game.player.name}
-        Gold:   {current_game.player.gold}
+        Health: {current_game.player.hp}
         XP:     {current_game.player.xp}
+        Gold:   {current_game.player.gold}
 
         Your Inventory:
 
         Well, looks like your inventory is empty...
-        And you have the total amount of {current_game.player.gold} gold.
         """
         )
         return
@@ -219,8 +223,9 @@ def show_inventory(current_game: Game) -> None:
     print(Fore.YELLOW +
         f"""
         Player: {current_game.player.name}
-        Gold:   {current_game.player.gold}
+        Health: {current_game.player.hp}
         XP:     {current_game.player.xp}
+        Gold:   {current_game.player.gold}
 
         Your Inventory: """
         )
@@ -456,7 +461,7 @@ def show_status(current_game: Game) -> None:
     print(Fore.LIGHTYELLOW_EX + 
         f"""
         You have played the game for {current_game.player.turns} turns,
-        defeated {current_game.player.creatures_killed} monsters,
+        defeated {current_game.player.monsters_killed} monsters,
         and found {current_game.player.gold} gold.
 
         Player {current_game.player.name}
@@ -470,6 +475,28 @@ def show_status(current_game: Game) -> None:
         )
 
 
+def meditate(current_game: Game) -> None:
+    if current_game.player.hp == cfg.PLAYER_HP:
+        print(Fore.GREEN + 
+        f"""
+        You meditated for a while and now you are full health!
+        You now have {current_game.player.hp}/{cfg.PLAYER_HP} HP.
+        """
+        )
+
+    
+    else:
+        current_game.player.hp += random.randint(1, 10)
+        if current_game.player.hp > cfg.PLAYER_HP:
+            current_game.player.hp = cfg.PLAYER_HP
+        print(Fore.GREEN +
+        f"""
+        You meditated for a while and recovered some Health!
+        You now have {current_game.player.hp}/{cfg.PLAYER_HP} HP.
+        """
+        )
+
+
 # Show the help message
 def show_help() -> None:
     print(Fore.YELLOW +
@@ -477,17 +504,18 @@ def show_help() -> None:
         If you need help, you have a few options:
 
         Player Options:
-        - w/s/d/a to move Up/Down/Right/Left
-        - map to show the map
-        - look to look around your current position
-        - inventory to show your inventory and your current equipment
-        - equip <item> to equip an item from your inventory
-        - unequip <item> to unequip an item from your inventory
-        - status to show your current status
-        - examine <item> to examine an item from your inventory
-        - use <item> to use an item from your inventory
-        - take <item> to take an item from the ground
-        - drop <item> to drop an item from your inventory
+        - 'w/s/d/a' to move Up/Down/Right/Left
+        - 'map' to show the map
+        - 'look' to look around your current position
+        - 'medidate' or 'md' to recover some health
+        - 'status' to show your current status
+        - 'inventory' to show your inventory and your current equipment
+        - 'equip' <item> to equip an item from your inventory
+        - 'unequip' <item> to unequip an item from your inventory
+        - 'examine' <item> to examine an item from your inventory
+        - 'use' <item> to use an item from your inventory
+        - 'take' <item> to take an item from the ground
+        - 'drop' <item> to drop an item from your inventory
 
         Game Options:
         - 'exit' to leave the game
