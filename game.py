@@ -90,18 +90,26 @@ def explore_island(current_game: Game) -> None:
                     print(Fore.LIGHTMAGENTA_EX +
         """
         You run away from the monster...
-        """
-        )
+        """)
                     break
-                else:
+                else: #TODO: else printing wrong and monster don't disappear when killed
                     # Player fights the monster
                     winner = combat.fight(current_game)
 
                     if winner == "player":
+                        current_game.island.monster = {}
                         break
+
                     elif winner == "monster":
+                        play_again()
                         break
+
                     else:
+                        print(Fore.LIGHTRED_EX +
+        """
+        You ran away from the monster...
+        Maybe was a good decision...
+        """)
                         break
 
                  
@@ -196,6 +204,10 @@ def show_inventory(current_game: Game) -> None:
     if len(current_game.player.inventory) == 0:
         print(Fore.YELLOW +
         f"""
+        Player: {current_game.player.name}
+        Gold:   {current_game.player.gold}
+        XP:     {current_game.player.xp}
+
         Your Inventory:
 
         Well, looks like your inventory is empty...
@@ -205,7 +217,11 @@ def show_inventory(current_game: Game) -> None:
         return
 
     print(Fore.YELLOW +
-        """
+        f"""
+        Player: {current_game.player.name}
+        Gold:   {current_game.player.gold}
+        XP:     {current_game.player.xp}
+
         Your Inventory: """
         )
 

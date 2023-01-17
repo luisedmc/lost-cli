@@ -26,12 +26,15 @@ def fight(current_game: Game) -> str:
         Let's if you can handle this {island.monster["name"]}!
         """
         )
+        sleep(2)
     else:
         print(Fore.LIGHTYELLOW_EX +
         f"""
-        Monster attacks first!
+        {island.monster["name"]} attacks first!
+        Good luck!
         """
         )
+        sleep(2)
 
     # Defining the monster's health
     monster_hp = random.randint(island.monster["min_hp"], island.monster["max_hp"])
@@ -46,15 +49,18 @@ def fight(current_game: Game) -> str:
             player_roll = random.randint(1, 100)
 
             # 50% chance to hit
-            if player_roll <= 50:
+            if player_roll > 50:
                 damage = random.randint(player.current_weapon["min_damage"], player.current_weapon["max_damage"])
                 monster_hp -= damage
-                print(Fore.LIGHTYELLOW_EX +
-        f"""
-        You hit the {island.monster["name"]} with your {player.current_weapon["name"]} and dealt {damage} damage!
-        Nice hit! 
+                print(
+        f""" {Fore.LIGHTYELLOW_EX}
+        You hit the {island.monster["name"]} with your {player.current_weapon["name"]} and dealt {Fore.BLUE} {damage} damage! {Fore.LIGHTYELLOW_EX}
+        Nice hit!
+
+        {Fore.LIGHTYELLOW_EX}{island.monster["name"]} HP: {monster_hp}/{monster_original_hp}
         """
                 )
+
             else:
                 print(Fore.LIGHTYELLOW_EX +
         f"""
@@ -66,16 +72,21 @@ def fight(current_game: Game) -> str:
             if monster_hp <= 0:
                 print(Fore.LIGHTGREEN_EX +
         f"""
-        You killed the {island.monster["name"]}!
-        You got {island.monster["xp"]} XP!
-        """
-                )
+        {island.monster["name"]} dropped {island.monster["gold"]} gold!
+        You better catch it! (Relax, it's already in your inventory)
+
+        You received {island.monster["xp"]} XP!
+        """)
+                current_game.player.gold += current_game.island.monster["gold"]
+                current_game.player.xp += current_game.island.monster["xp"]
+                current_game.player.monsters_killed += 1
+                winner = "player"
 
         # Monster's turn
         else:
             monster_roll = random.randint(1, 100)
 
-            if monster_roll >= 50:
+            if monster_roll > 50:
                 damage = random.randint(island.monster["min_damage"], island.monster["max_damage"])
                 player.hp -= damage
                 print(Fore.RED +
@@ -95,8 +106,9 @@ def fight(current_game: Game) -> str:
             if player.hp <= 0:
                 print(Fore.LIGHTRED_EX +
         f"""
-        {island.monster["name"]} killed you!
+        You fought bravely, but {island.monster["name"]} was too strong for you...
         That's the end of your journey...
+
 
         {Fore.WHITE}"We shall find peace. We shall hear the angels, we shall see the sky sparkling with diamonds."
         - Anton Chekhov
