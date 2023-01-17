@@ -47,8 +47,8 @@ def run_game() -> None:
 -> """
         ).strip()
 
-    # Create a new Game with the Player Name
-    new_game = Game(player)
+    # Create a new Game with Player, Map X and Y location
+    new_game = Game(player, cfg.MAX_X_AXIS, cfg.MAX_Y_AXIS)
 
     new_game.island = generate_island()
 
