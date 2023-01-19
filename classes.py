@@ -22,7 +22,7 @@ class Player:
 
 # Island holds all island data.
 class Island:
-    def __init__(self, items: list, monster: dict) -> None:
+    def __init__(self, items: list, monster: dict, location: str) -> None:
         self.description: str = descriptions.descriptions[random.randint(0, len(descriptions.descriptions)-1)]
 
         self.sound: str = descriptions.sounds[random.randint(0, len(descriptions.sounds)-1)]
@@ -30,8 +30,8 @@ class Island:
         self.smell: str = descriptions.smells[random.randint(0, len(descriptions.smells)-1)]
 
         self.items: list = items
-
         self.monster: dict = monster
+        self.location: str = location
 
     def print_description(self) -> None:
         terminal_size = os.get_terminal_size()
@@ -51,16 +51,21 @@ class Island:
 
 # Game holds all game data.
 class Game:
-    def __init__(self, player: Player) -> None:
+    def __init__(self, player: Player, x: int, y: int) -> None:
         self.player = player
         self.island = None
-        self.number_creatures: int = 0
+        self.number_monsters: int = 0
         self.islands: dict = {}
-        self.position_x: int = 0
-        self.position_y: int = 0
+        self.position_x: int = x
+        self.position_y: int = y
+        self.start_point: str = ""
 
     def set_islands(self, islands: dict) -> None:
         self.islands = islands
 
     def set_current_island(self, island: Island) -> None:
         self.island = island
+
+    def set_start_point(self, start_point: str):
+        self.start_point = start_point
+        

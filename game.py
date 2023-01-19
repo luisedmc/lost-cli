@@ -2,6 +2,7 @@ from pyfiglet import Figlet
 from blessings import Terminal
 from colorama import Fore, init
 from classes import Player, Game, Island
+import world
 import config as cfg
 import utils
 import random
@@ -14,7 +15,7 @@ f = Figlet(font='slant')
 print (f.renderText('L O S T'))
 
 
-def welcome_screen() -> None:
+def welcome_screen(current_game: Game) -> None:
     """
     welcome_screen simply shows the welcome screen of the game to the user.
     """
@@ -23,8 +24,10 @@ def welcome_screen() -> None:
     print(Fore.RED + 
         """      --------------------------------------""")
     print(Fore.GREEN +
-        """
+        f"""
         Game Description
+
+        A little bird told me that there are {current_game.number_monsters} monsters on this island.
         """
         )
 
@@ -33,7 +36,7 @@ def run_game() -> None:
     # Initialize colorama
     init()
 
-    welcome_screen()
+    welcome_screen(current_game)
 
     # Create a new Player
     player = Player()
@@ -48,9 +51,17 @@ def run_game() -> None:
         ).strip()
 
     # Create a new Game with Player, Map X and Y location
-    new_game = Game(player, cfg.MAX_X_AXIS, cfg.MAX_Y_AXIS)
+    current_game = Game(player, cfg.MAX_X_AXIS, cfg.MAX_Y_AXIS)
 
-    new_game.island = generate_island()
+    all_islands, number_monsters = world.create_world(current_game)
+    current_game.number_monsters = number_monsters
+    current_game.set_islands(all_islands)
+
+    # Defining the starting point of the game
+    start_point = "0,0"
+    current_game.set_current_island(current_game.islands[start_point])
+    current_game.set_start_point(start_point)
+    current_game.island.location = start_point
 
     input(Fore.GREEN +
         f"""
@@ -60,8 +71,8 @@ def run_game() -> None:
         """
         )
 
-    new_game.island.print_description()
-    explore_island(new_game)
+    current_game.island.print_description()
+    explore_island(current_game)
 
 
 def explore_island(current_game: Game) -> None:
@@ -185,8 +196,9 @@ def explore_island(current_game: Game) -> None:
         current_game.island.print_description()
         current_game.player.turns += 1
 
+
 # Generate a new Island
-def generate_island() -> Island:
+def generate_island(location: str) -> Island:
     items = []
     monsters = {}
 
@@ -199,7 +211,7 @@ def generate_island() -> Island:
     if random.randint(1, 100) < 25:
         monsters = random.choice(bestiary.monsters)
 
-    return Island(items, monsters)
+    return Island(items, monsters, location)
 
 
 # Show the inventory
