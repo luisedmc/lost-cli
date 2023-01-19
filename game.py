@@ -104,7 +104,7 @@ def explore_island(current_game: Game) -> None:
         You run away from the monster...
         """)
                     break
-                else: #TODO: else printing wrong and monster don't disappear when killed
+                else:
                     # Player fights the monster
                     winner = combat.fight(current_game)
 
@@ -264,8 +264,18 @@ def explore_island(current_game: Game) -> None:
         current_game.island = current_game.islands[new_location]
         current_game.island.location = new_location
 
+
         current_game.island.print_description()
         current_game.player.turns += 1
+        if new_location in current_game.player.visited:
+            print(Fore.YELLOW +
+        """
+        There's something familiar about this island...
+        Maybe you have been here before...
+        """
+        )
+        else:
+            current_game.player.visited.append(new_location)
 
 
 # Generate a new Island
