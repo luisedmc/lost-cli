@@ -4,7 +4,7 @@ from colorama import Fore, init
 from classes import Player, Game, Island
 import world
 import config as cfg
-import utils
+from utils import get_input, find_item
 import random
 import armory
 import bestiary
@@ -27,7 +27,7 @@ def welcome_screen(current_game: Game) -> None:
         f"""
         Game Description
 
-        A little bird told me that there are {current_game.number_monsters} monsters on this island.
+        A little bird told me that there are {current_game.number_monsters} monsters on this island. Proceed with caution!
         """
         )
 
@@ -36,10 +36,24 @@ def run_game() -> None:
     # Initialize colorama
     init()
 
-    welcome_screen(current_game)
-
     # Create a new Player
     player = Player()
+
+    # Create a new Game with Player, Map X and Y location
+    current_game = Game(player, cfg.MAX_X_AXIS, cfg.MAX_Y_AXIS)
+
+    all_islands, number_monsters = world.create_world(current_game)
+    current_game.number_monsters = number_monsters
+    current_game.set_islands(all_islands)
+
+    # Defining the starting point of the game randomly
+    start_point = random.choice(list(current_game.islands.keys()))
+    # print(type(start_point), start_point)
+    current_game.set_current_island(current_game.islands[start_point])
+    current_game.set_start_point(start_point)
+    current_game.island.location = start_point
+
+    welcome_screen(current_game)
 
     player.name = input(Fore.GREEN +
         """
@@ -49,19 +63,6 @@ def run_game() -> None:
         """ + Fore.LIGHTCYAN_EX + """
 -> """
         ).strip()
-
-    # Create a new Game with Player, Map X and Y location
-    current_game = Game(player, cfg.MAX_X_AXIS, cfg.MAX_Y_AXIS)
-
-    all_islands, number_monsters = world.create_world(current_game)
-    current_game.number_monsters = number_monsters
-    current_game.set_islands(all_islands)
-
-    # Defining the starting point of the game
-    start_point = "0,0"
-    current_game.set_current_island(current_game.islands[start_point])
-    current_game.set_start_point(start_point)
-    current_game.island.location = start_point
 
     input(Fore.GREEN +
         f"""
@@ -89,7 +90,7 @@ def explore_island(current_game: Game) -> None:
         f"""
         {Fore.LIGHTRED_EX}You see a {current_game.island.monster["name"]} nearby. """
         )
-            fight_or_run = utils.get_input(
+            fight_or_run = get_input(
         f"""
         Do you want to fight or run?
         Choose wisely...
@@ -176,6 +177,73 @@ def explore_island(current_game: Game) -> None:
             continue
 
         elif input_player in ["w", "s", "d", "a"]:
+            direction = input_player
+
+            if current_game.island.location == current_game.start_point and direction == "s":
+                answer_to_leave = get_input(Fore.MAGENTA +
+        """
+        You went back to the starting point.
+        That means you can leave the island.
+        Do you want to leave the island? You can answer with 'yes' or 'no'.
+        """
+                )
+                if answer_to_leave != "yes":
+                    continue
+                else:
+                    play_again()
+
+            if direction == "w":
+                if current_game.player.y_axis < current_game.y_axis:
+                    current_game.player.y_axis += 1
+                else:
+                    print(Fore.YELLOW +
+        """
+        You can't go further north...
+        I think you are stuck in the island...
+        Or maybe you should try going other direction...
+        """
+        )
+                    continue
+
+            elif direction == "s":
+                if current_game.player.y_axis > (current_game.y_axis * -1):
+                    current_game.player.y_axis -= 1
+                else:
+                    print(Fore.YELLOW +
+        """
+        You can't go further south...
+        I think you are stuck in the island...
+        Or maybe you should try going other direction...
+        """
+        )
+                    continue
+
+            elif direction == "d":
+                if current_game.player.x_axis < current_game.x_axis:
+                    current_game.player.x_axis += 1
+                else:
+                    print(Fore.YELLOW +
+        """
+        You can't go further east...
+        I think you are stuck in the island...
+        Or maybe you should try going other direction...
+        """
+        )
+                    continue
+
+            elif direction == "a":
+                if current_game.player.x_axis > (current_game.x_axis * -1):
+                    current_game.player.x_axis -= 1
+                else:
+                    print(Fore.YELLOW +
+        """
+        You can't go further west...
+        I think you are stuck in the island...
+        Or maybe you should try going other direction...
+        """
+        )
+                    continue
+
             print(Fore.LIGHTMAGENTA_EX +
         """
         You go deeper into the island...
@@ -191,8 +259,11 @@ def explore_island(current_game: Game) -> None:
         )
             continue
 
-        # Generate another Island
-        current_game.island = generate_island()
+        # Updating player location
+        new_location = f"{current_game.player.x_axis},{current_game.player.y_axis}"
+        current_game.island = current_game.islands[new_location]
+        current_game.island.location = new_location
+
         current_game.island.print_description()
         current_game.player.turns += 1
 
@@ -272,7 +343,7 @@ def take_item(current_game: Game, input_player: str) -> None:
 
     # Checking if the item is not in the inventory
     if input_player[5:] not in current_game.player.inventory:
-        idx = utils.find_item(input_player[5:], "name", current_game.island.items)
+        idx = find_item(input_player[5:], "name", current_game.island.items)
 
         # Adding the item to the inventory
         if idx > -1:
@@ -539,7 +610,7 @@ def show_help() -> None:
 
 # Ask the user if he wants to play again
 def play_again() -> None:
-    answer = utils.get_input(Fore.YELLOW +
+    answer = get_input(Fore.YELLOW +
         f"""
         So...
         You want to play again?

@@ -13,12 +13,15 @@ class Player:
         self.gold: int = 0
         self.monsters_killed: int = 0
         self.xp: int = 0
-        self.level: int = 1
+        self.level: int = 0
         self.turns: int = 0
         self.inventory: list = []
         self.current_weapon: dict = armory.default["hands"]
         self.current_armor: dict = armory.default["clothes"]
         self.current_shield: dict = armory.default["noshield"]
+        self.x_axis: int = 0
+        self.y_axis: int = 0
+        self.visited: list = []
 
 # Island holds all island data.
 class Island:
@@ -56,8 +59,8 @@ class Game:
         self.island = None
         self.number_monsters: int = 0
         self.islands: dict = {}
-        self.position_x: int = x
-        self.position_y: int = y
+        self.x_axis: int = x
+        self.y_axis: int = y
         self.start_point: str = ""
 
     def set_islands(self, islands: dict) -> None:
@@ -66,6 +69,5 @@ class Game:
     def set_current_island(self, island: Island) -> None:
         self.island = island
 
-    def set_start_point(self, start_point: str):
+    def set_start_point(self, start_point: str) -> None:
         self.start_point = start_point
-        
