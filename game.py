@@ -1,6 +1,6 @@
 from pyfiglet import Figlet
 from blessings import Terminal
-from colorama import Fore, init
+from colorama import Fore, init, Back
 from classes import Player, Game, Island
 import world
 import config as cfg
@@ -46,12 +46,12 @@ def run_game() -> None:
     current_game.number_monsters = number_monsters
     current_game.set_islands(all_islands)
 
-    # Defining the starting point of the game randomly
-    start_point = random.choice(list(current_game.islands.keys()))
-    # print(type(start_point), start_point)
-    current_game.set_current_island(current_game.islands[start_point])
-    current_game.set_start_point(start_point)
-    current_game.island.location = start_point
+    # Defining the exit point of the game randomly
+    exit_point = random.choice(list(current_game.islands.keys()))
+    # print(type(exit_point), exit_point)
+    current_game.set_current_island(current_game.islands[exit_point])
+    current_game.set_exit_point(exit_point)
+    current_game.island.location = exit_point
 
     welcome_screen(current_game)
 
@@ -176,13 +176,17 @@ def explore_island(current_game: Game) -> None:
             show_inventory(current_game)
             continue
 
+        elif input_player == "map":
+            show_map(current_game)
+            continue
+
         elif input_player in ["w", "s", "d", "a"]:
             direction = input_player
 
-            if current_game.island.location == current_game.start_point and direction == "s":
+            if current_game.island.location == current_game.exit_point and direction == "s":
                 answer_to_leave = get_input(Fore.MAGENTA +
         """
-        You went back to the starting point.
+        You went to the exit point.
         That means you can leave the island.
         Do you want to leave the island? You can answer with 'yes' or 'no'.
         """
@@ -345,6 +349,62 @@ def show_inventory(current_game: Game) -> None:
             - {i}
             """
             )
+
+
+def show_map(current_game: Game) -> None:
+    for i in range(1, cfg.MAX_X_AXIS * 6 +3):
+        print(Fore.YELLOW + ">", end="")
+    print()
+
+    for y in range(cfg.MAX_Y_AXIS, (cfg.MAX_Y_AXIS+1) * -1, -1):
+        for x in range(cfg.MAX_X_AXIS * -1, cfg.MAX_X_AXIS +1):
+            content = ""
+
+            # Current location
+            if f"{x},{y}" == current_game.island.location:
+                content = Fore.BLUE + Back.WHITE + " X " + Fore.YELLOW + Back.RESET
+
+            # Exit point
+            elif f"{x},{y}" == current_game.exit_point:
+                content = Fore.BLUE + Back.WHITE + " E " + Fore.YELLOW + Back.RESET
+
+            # Island visited
+            elif f"{x},{y}" in current_game.player.visited:
+                test_island = current_game.islands[f"{x},{y}"]
+
+                # Checking if there is a monster or an item and marking the map
+                if test_island.monster:
+                    content = Fore.RED + " M " + Fore.YELLOW
+                
+                elif test_island.items:
+                    content = Fore.MAGENTA + " I " + Fore.YELLOW
+
+                else:
+                    ...
+
+                # Items + Monsters
+                if test_island.monster and test_island.items:
+                    content = Fore.RED + " S " + Fore.YELLOW
+        
+            # Island not visited
+            else:
+                content = " ? "
+        
+            print(Fore.YELLOW + f"{content.center(3)}", end="")
+
+        print()
+
+    for i in range(1, cfg.MAX_X_AXIS * 6 +3):
+        print(Fore.YELLOW + "<", end="")
+    print("\n")
+
+    # Legend
+    print(Fore.BLUE + Back.WHITE + " X " + Back.RESET + ": Current location     ", end="")
+    print(Fore.RED + " M " + Back.RESET + ": Monster     ", end="")
+    print(Fore.MAGENTA + " I " + Back.RESET + ": Item     ", end="")
+    print(Fore.RED + " S " + Back.RESET + ": Item + Monster     ", end="")
+    print(Fore.BLUE + " E " + Back.RESET + ": Exit point     ", end="")
+    print(Fore.YELLOW + " ? " + Back.RESET + ": Unknown", end="\n\n")
 
 
 def take_item(current_game: Game, input_player: str) -> None:
