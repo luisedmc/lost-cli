@@ -1,4 +1,5 @@
 from colorama import Fore
+import config as cfg
 import armory
 import descriptions
 import random
@@ -9,7 +10,7 @@ import os
 class Player:
     def __init__(self) -> None:
         self.name: str = ""
-        self.hp: int = 100
+        self.hp: int = cfg.PLAYER_HP
         self.gold: int = 0
         self.monsters_killed: int = 0
         self.xp: int = 0
@@ -22,6 +23,7 @@ class Player:
         self.x_axis: int = 0
         self.y_axis: int = 0
         self.visited: list = []
+
 
 # Island holds all island data.
 class Island:
@@ -54,14 +56,15 @@ class Island:
 
 # Game holds all game data.
 class Game:
-    def __init__(self, player: Player, x: int, y: int) -> None:
+    def __init__(self, player: Player, x: int, y: int, term) -> None:
         self.player = player
         self.island = None
         self.number_monsters: int = 0
         self.islands: dict = {}
         self.x_axis: int = x
         self.y_axis: int = y
-        self.start_point: str = ""
+        self.exit_point: str = ""
+        self.term = term
 
     def set_islands(self, islands: dict) -> None:
         self.islands = islands
@@ -69,5 +72,5 @@ class Game:
     def set_current_island(self, island: Island) -> None:
         self.island = island
 
-    def set_start_point(self, start_point: str) -> None:
-        self.start_point = start_point
+    def set_exit_point(self, exit_point: str) -> None:
+        self.exit_point = exit_point

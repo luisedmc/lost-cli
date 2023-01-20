@@ -7,7 +7,7 @@ def main() -> None:
     print(term.clear())
 
     # main simply runs the game
-    g.run_game()
+    g.run_game(term)
     
 
 if __name__ == "__main__":

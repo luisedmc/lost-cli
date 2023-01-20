@@ -162,3 +162,4 @@ def fight(current_game: Game) -> str:
         player_turn = not player_turn
 
     return winner
+    
