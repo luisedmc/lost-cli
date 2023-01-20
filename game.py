@@ -2,6 +2,7 @@ from pyfiglet import Figlet
 from blessings import Terminal
 from colorama import Fore, init, Back
 from classes import Player, Game, Island
+from time import sleep
 import world
 import config as cfg
 from utils import get_input, find_item
@@ -15,24 +16,30 @@ f = Figlet(font='slant')
 print (f.renderText('L O S T'))
 
 
+# welcome_screen simply shows the welcome screen of the game to the user.
 def welcome_screen(current_game: Game) -> None:
-    """
-    welcome_screen simply shows the welcome screen of the game to the user.
-    """
     print(Fore.RED + f.renderText(
         """   L O S T """))
     print(Fore.RED + 
         """      --------------------------------------""")
     print(Fore.GREEN +
         f"""
-        Game Description
+        You just woke up without a clue where you are.
+        Well... the sound of the waves and the smell of the sea are a good hint. I think you're gonna need more information than that to survive.
+        You climb the highest visible tree and look around.
+        You see ... things ... moving around. Monsters! You start to count them and you realize that there are {current_game.number_monsters} of them. That's not good.
+        But you also see a boat! That's the way out of here!
+        After a while, you draw a map of the island with all your observations skills.
+        You're ready to start your adventure!
 
-        A little bird told me that there are {current_game.number_monsters} monsters on this island. Proceed with caution!
+        But... the only question that remains is:
         """
         )
 
+    sleep(1.5)
 
-def run_game() -> None:
+
+def run_game(term: Terminal) -> None:
     # Initialize colorama
     init()
 
@@ -40,7 +47,7 @@ def run_game() -> None:
     player = Player()
 
     # Create a new Game with Player, Map X and Y location
-    current_game = Game(player, cfg.MAX_X_AXIS, cfg.MAX_Y_AXIS)
+    current_game = Game(player, cfg.MAX_X_AXIS, cfg.MAX_Y_AXIS, term)
 
     all_islands, number_monsters = world.create_world(current_game)
     current_game.number_monsters = number_monsters
@@ -57,23 +64,23 @@ def run_game() -> None:
 
     player.name = input(Fore.GREEN +
         """
-        Hello Adventurer!
-        I can see you made a good decision!
-        Would you kindly tell me your name?
+        What's my name?
         """ + Fore.LIGHTCYAN_EX + """
 -> """
         ).strip()
 
     input(Fore.GREEN +
         f"""
-        Welcome to the game, {player.name}!
-        We're all set to begin.
+        Oh yes! Now I remember! My name is {player.name}!
+        Now we're all set to begin.
         Would you kindly press the ENTER key to start the game?
         """
         )
 
     current_game.island.print_description()
     explore_island(current_game)
+    # show_status_bar(current_game)
+
 
 
 def explore_island(current_game: Game) -> None:
@@ -125,11 +132,13 @@ def explore_island(current_game: Game) -> None:
                         break
 
                  
-
+        # show_status_bar(current_game)
+        
         input_player = input(Fore.LIGHTCYAN_EX + "-> ").lower().strip()
 
         # Get the option selected from the User
         if input_player == "exit":
+            show_final_score(current_game)
             play_again()
 
         elif input_player == "help":
@@ -164,6 +173,10 @@ def explore_island(current_game: Game) -> None:
             unequip_item(current_game.player, input_player[8:])
             continue
 
+        elif input_player.startswith("examine"):
+            examine_item(input_player[8:])
+            continue
+
         elif input_player == "status":
             show_status(current_game)
             continue
@@ -183,17 +196,18 @@ def explore_island(current_game: Game) -> None:
         elif input_player in ["w", "s", "d", "a"]:
             direction = input_player
 
+            # TODO: Fix exit point
             if current_game.island.location == current_game.exit_point and direction == "s":
                 answer_to_leave = get_input(Fore.MAGENTA +
         """
         You went to the exit point.
         That means you can leave the island.
         Do you want to leave the island? You can answer with 'yes' or 'no'.
-        """
-                )
+        """, ["yes", "no"])
                 if answer_to_leave != "yes":
                     continue
                 else:
+                    show_final_score(current_game)
                     play_again()
 
             if direction == "w":
@@ -253,6 +267,7 @@ def explore_island(current_game: Game) -> None:
         You go deeper into the island...
         """
         )
+            # show_status_bar(current_game)
 
         else:
             print(Fore.YELLOW +
@@ -305,12 +320,7 @@ def show_inventory(current_game: Game) -> None:
     if len(current_game.player.inventory) == 0:
         print(Fore.YELLOW +
         f"""
-        Player: {current_game.player.name}
-        Health: {current_game.player.hp}
-        XP:     {current_game.player.xp}
-        Gold:   {current_game.player.gold}
-
-        Your Inventory:
+        {current_game.player.name} Inventory:
 
         Well, looks like your inventory is empty...
         """
@@ -319,12 +329,7 @@ def show_inventory(current_game: Game) -> None:
 
     print(Fore.YELLOW +
         f"""
-        Player: {current_game.player.name}
-        Health: {current_game.player.hp}
-        XP:     {current_game.player.xp}
-        Gold:   {current_game.player.gold}
-
-        Your Inventory: """
+        {current_game.player.name} Inventory: """
         )
 
     for i in current_game.player.inventory:
@@ -398,12 +403,12 @@ def show_map(current_game: Game) -> None:
         print(Fore.YELLOW + "<", end="")
     print("\n")
 
-    # Legend
+    # Map description
     print(Fore.BLUE + Back.WHITE + " X " + Back.RESET + ": Current location     ", end="")
     print(Fore.RED + " M " + Back.RESET + ": Monster     ", end="")
     print(Fore.MAGENTA + " I " + Back.RESET + ": Item     ", end="")
     print(Fore.RED + " S " + Back.RESET + ": Item + Monster     ", end="")
-    print(Fore.BLUE + " E " + Back.RESET + ": Exit point     ", end="")
+    print(Fore.BLUE + Back.WHITE + " E " + Back.RESET + ": Exit point     ", end="")
     print(Fore.YELLOW + " ? " + Back.RESET + ": Unknown", end="\n\n")
 
 
@@ -609,6 +614,28 @@ def unequip_item(player: Player, item: str) -> None:
         """
         )
 
+# TODO: examine_item
+def examine_item(item: str) -> None:
+    ...
+
+
+def show_final_score(current_game: Game) -> None:
+    print(Fore.LIGHTYELLOW_EX + 
+        f"""
+        You have played the game for {current_game.player.turns} turns,
+        defeated {current_game.player.monsters_killed} monsters,
+        and found {current_game.player.gold} gold.
+
+        Player {current_game.player.name}
+        - XP:     {current_game.player.xp}
+        - Level:  {current_game.player.level}
+        - Health: {current_game.player.hp}
+        - Weapon: {current_game.player.current_weapon["name"]}
+        - Armor:  {current_game.player.current_armor["name"]}
+        - Shield: {current_game.player.current_shield["name"]}
+        """
+        )
+
 
 def show_status(current_game: Game) -> None:
     print(Fore.LIGHTYELLOW_EX + 
@@ -650,7 +677,26 @@ def meditate(current_game: Game) -> None:
         )
 
 
-# Show the help message
+# def show_status_bar(current_game: Game) -> None:
+#     # Printing the status bar
+#     with current_game.term.location(0, 0):
+#         for i in range(current_game.term.width):
+#             print(current_game.term.on_green(" "), end="")
+
+#     # Health status
+#     with current_game.term.location(5, 0):
+#         print(current_game.term.black_on_green(f" HP: {current_game.player.hp}/{cfg.PLAYER_HP} "), end="")
+
+#     # Monsters killed
+#     with current_game.term.location(30, 0):
+#         print(current_game.term.black_on_green(f" Monsters killed: {current_game.player.monsters_killed}/{current_game.number_monsters}"), end="")
+
+#     # XP
+#     with current_game.term.location(60, 0):
+#         print(current_game.term.black_on_green(f" XP: {current_game.player.xp}"), end="")
+
+
+# Show the help message with available commands
 def show_help() -> None:
     print(Fore.YELLOW +
         """
@@ -691,7 +737,7 @@ def play_again() -> None:
     if answer == "yes":
         term = Terminal()
         print(term.clear())
-        run_game()
+        run_game(term)
         
     elif answer == "no":
         print(Fore.RED +
